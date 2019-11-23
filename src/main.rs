@@ -8,11 +8,11 @@ use rand::Rng;
 use Constants::{KeyDown, KeyEsc, KeyLeft, KeyRight, KeyUp};
 
 enum Constants {
-    KeyUp = 115,
-    KeyDown = 100,
-    KeyLeft = 97,
-    KeyRight = 102,
-    KeyEsc = 27,
+    KeyUp = 'j' as isize,
+    KeyDown = 'k' as isize,
+    KeyLeft = 'h' as isize,
+    KeyRight = 'l' as isize,
+    KeyEsc = 27 as isize,
 }
 
 #[derive(PartialEq, Debug)]
