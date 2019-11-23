@@ -1,0 +1,7 @@
+target/*
+!*.rs
+!*.md
+!*.toml
+!*.lock
+!*.json
+
