@@ -8,8 +8,8 @@ use rand::Rng;
 use Constants::{KeyDown, KeyEsc, KeyLeft, KeyRight, KeyUp};
 
 enum Constants {
-    KeyUp = 'j' as isize,
-    KeyDown = 'k' as isize,
+    KeyUp = 'k' as isize,
+    KeyDown = 'j' as isize,
     KeyLeft = 'h' as isize,
     KeyRight = 'l' as isize,
     KeyEsc = 27 as isize,
@@ -35,7 +35,7 @@ fn main() {
     keypad(win, true);
     curs_set(CURSOR_VISIBILITY::CURSOR_INVISIBLE);
 
-    raw();
+    
     noecho();
     cbreak();
 
@@ -54,10 +54,20 @@ fn main() {
 
     let mut direction = Direction::Right;
     let (mut food_x, mut food_y) = (width / 2, height / 2);
+    let mut score = 0;
 
     loop {
         timeout(100);
-        border('|' as chtype, '|' as chtype, '-' as chtype, '-' as chtype, '+' as chtype, '+' as chtype, '+' as chtype, '+' as chtype);
+
+
+        border('|' as chtype, 
+               '|' as chtype, 
+               '-' as chtype, 
+               '-' as chtype, 
+               '+' as chtype, 
+               '+' as chtype, 
+               '+' as chtype, 
+               '+' as chtype);
 
         direction = match getch() {
             s if (KeyUp as i32) == s && direction != Direction::Down => Direction::Up,
@@ -77,32 +87,59 @@ fn main() {
             Direction::Right => (head_x + 1, head_y),
         };
 
-        if new_head.0 < 0 || new_head.0 > width {
+        if new_head.0 <= 0 || new_head.0 >= width {
             break;
         }
-        if new_head.1 < 0 || new_head.1 > height {
+        if new_head.1 <= 0 || new_head.1 >= height {
             break;
         }
-        mv(food_y, food_x);
-        addch('#' as chtype);
+       
+        mvaddch(food_y, food_x, '#' as chtype);
 
         if new_head == (food_x, food_y) {
             food_x = rng.gen_range(1, width - 1);
             food_y = rng.gen_range(1, height - 1);
+            score += 1;
         } else {
             let (tail_x, tail_y) = snake_position.pop().unwrap();
-            mv(tail_y, tail_x);
-            addch(' ' as chtype);
+            mvaddch(tail_y, tail_x, ' ' as chtype);
         }
         snake_position.insert(0, new_head);
 
-        for (x, y) in snake_position.iter() {
-            mv(*y, *x);
-            addch('*' as chtype);
-        }
-    }
+        snake_position.iter()
+                      .map(|(x, y)| mvaddch(*y, *x, '*' as chtype))
+                      .last();
+        
 
-    refresh();
-    clear();
+        doupdate();
+        refresh();
+        getmaxyx(sc, &mut height, &mut width);
+    }
+    
+    
+    let exit_message_1 = format!("Your score is : {:?}\0", score as u8).as_bytes()
+                                                   .iter()
+                                                   .map(|&x| x as chtype)
+                                                   .collect::<Vec<chtype>>();
+    
+    let exit_message_2 = "Press any key to exit....\0".as_bytes()
+                                                   .iter()
+                                                   .map(|&x| x as chtype)
+                                                   .collect::<Vec<chtype>>();
+                                     
+    mvaddchstr(height/2, 
+               width/2 - (exit_message_1.len() as i32)/2, 
+               &exit_message_1);
+
+    mvaddchstr(height-2, 
+               2, 
+               &exit_message_2);
+   
+    
+    doupdate();
+    halfdelay(255);
+    
+    getch();   
+    echo();
     endwin();
 }
