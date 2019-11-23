@@ -70,20 +70,20 @@ fn main() {
                '+' as chtype);
 
         direction = match getch() {
-            s if (KeyUp as i32) == s && direction != Direction::Down => Direction::Up,
-            d if (KeyDown as i32) == d && direction != Direction::Up => Direction::Down,
-            f if (KeyRight as i32) == f && direction != Direction::Left => Direction::Right,
-            a if (KeyLeft as i32) == a && direction != Direction::Right => Direction::Left,
-            esc if (KeyEsc as i32) == esc => break,
-            _ => direction,
+            s if (KeyUp as i32)    == s && direction != Direction::Down  => Direction::Up,
+            d if (KeyDown as i32)  == d && direction != Direction::Up    => Direction::Down,
+            f if (KeyRight as i32) == f && direction != Direction::Left  => Direction::Right,
+            a if (KeyLeft as i32)  == a && direction != Direction::Right => Direction::Left,
+            esc if (KeyEsc as i32) == esc                                => break,
+            _                                                            => direction,
         };
 
         let (head_x, head_y) = snake_position[0];
 
         let new_head = match direction {
-            Direction::Up => (head_x, head_y - 1),
-            Direction::Down => (head_x, head_y + 1),
-            Direction::Left => (head_x - 1, head_y),
+            Direction::Up    => (head_x, head_y - 1),
+            Direction::Down  => (head_x, head_y + 1),
+            Direction::Left  => (head_x - 1, head_y),
             Direction::Right => (head_x + 1, head_y),
         };
 
@@ -101,7 +101,8 @@ fn main() {
             food_y = rng.gen_range(1, height - 1);
             score += 1;
         } else {
-            let (tail_x, tail_y) = snake_position.pop().unwrap();
+            let (tail_x, tail_y) = snake_position.pop()
+                                                 .unwrap();
             mvaddch(tail_y, tail_x, ' ' as chtype);
         }
         snake_position.insert(0, new_head);
@@ -118,14 +119,14 @@ fn main() {
     
     
     let exit_message_1 = format!("Your score is : {:?}\0", score as u8).as_bytes()
-                                                   .iter()
-                                                   .map(|&x| x as chtype)
-                                                   .collect::<Vec<chtype>>();
+                                                                       .iter()
+                                                                       .map(|&x| x as chtype)
+                                                                       .collect::<Vec<chtype>>();
     
     let exit_message_2 = "Press any key to exit....\0".as_bytes()
-                                                   .iter()
-                                                   .map(|&x| x as chtype)
-                                                   .collect::<Vec<chtype>>();
+                                                       .iter()
+                                                       .map(|&x| x as chtype)
+                                                       .collect::<Vec<chtype>>();
                                      
     mvaddchstr(height/2, 
                width/2 - (exit_message_1.len() as i32)/2, 
