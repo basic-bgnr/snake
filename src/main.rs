@@ -1,4 +1,3 @@
-
 extern crate ncurses;
 extern crate rand;
 
@@ -78,10 +77,10 @@ fn main() {
         };
 
         if new_head.0 < 0 || new_head.0 > width {
-            return;
+            break;
         }
         if new_head.1 < 0 || new_head.1 > height {
-            return;
+            break;
         }
         mv(food_y, food_x);
         addch('#' as chtype);
@@ -100,9 +99,9 @@ fn main() {
             mv(*y, *x);
             addch('*' as chtype);
         }
-        doupdate();
     }
 
     refresh();
+    clear();
     endwin();
 }
