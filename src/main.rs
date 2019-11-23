@@ -35,22 +35,14 @@ fn main() {
     keypad(win, true);
     curs_set(CURSOR_VISIBILITY::CURSOR_INVISIBLE);
 
-    
     noecho();
     cbreak();
 
     let mut snake_position: Vec<(i32, i32)> = Vec::new();
+    let length = 20_i32;
+    (0..=length).map(|x| snake_position.push((width/4 - x, height/2)))
+                .last();
 
-    snake_position.push((width / 4, height / 2));
-    snake_position.push((width / 4 - 1, height / 2));
-    snake_position.push((width / 4 - 2, height / 2));
-    snake_position.push((width / 4 - 3, height / 2));
-    snake_position.push((width / 4 - 4, height / 2));
-    snake_position.push((width / 4 - 5, height / 2));
-    snake_position.push((width / 4 - 6, height / 2));
-    snake_position.push((width / 4 - 7, height / 2));
-    snake_position.push((width / 4 - 8, height / 2));
-    snake_position.push((width / 4 - 9, height / 2));
 
     let mut direction = Direction::Right;
     let (mut food_x, mut food_y) = (width / 2, height / 2);
