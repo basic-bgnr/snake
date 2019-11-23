@@ -5,14 +5,14 @@ use ncurses::*;
 
 use rand::Rng;
 
-use constants::{KEY_DOWN, KEY_ESC, KEY_LEFT, KEY_RIGHT, KEY_UP};
+use Constants::{KeyDown, KeyEsc, KeyLeft, KeyRight, KeyUp};
 
-enum constants {
-    KEY_UP = 115,
-    KEY_DOWN = 100,
-    KEY_LEFT = 97,
-    KEY_RIGHT = 102,
-    KEY_ESC = 27,
+enum Constants {
+    KeyUp = 115,
+    KeyDown = 100,
+    KeyLeft = 97,
+    KeyRight = 102,
+    KeyEsc = 27,
 }
 
 #[derive(PartialEq, Debug)]
@@ -59,11 +59,11 @@ fn main() {
         timeout(100);
 
         direction = match getch() {
-            s if (KEY_UP as i32) == s && direction != Direction::Down => Direction::Up,
-            d if (KEY_DOWN as i32) == d && direction != Direction::Up => Direction::Down,
-            f if (KEY_RIGHT as i32) == f && direction != Direction::Left => Direction::Right,
-            a if (KEY_LEFT as i32) == a && direction != Direction::Right => Direction::Left,
-            esc if (KEY_ESC as i32) == esc => break,
+            s if (KeyUp as i32) == s && direction != Direction::Down => Direction::Up,
+            d if (KeyDown as i32) == d && direction != Direction::Up => Direction::Down,
+            f if (KeyRight as i32) == f && direction != Direction::Left => Direction::Right,
+            a if (KeyLeft as i32) == a && direction != Direction::Right => Direction::Left,
+            esc if (KeyEsc as i32) == esc => break,
             _ => direction,
         };
 
