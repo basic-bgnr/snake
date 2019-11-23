@@ -1,15 +1,23 @@
+
 extern crate ncurses;
+extern crate rand;
 
 use ncurses::*;
 
 use std::fs::File;
 use std::io::Write;
 
+use rand::Rng;
 
+use constants::{KEY_DOWN, KEY_ESC, KEY_LEFT, KEY_RIGHT, KEY_UP};
 
-use ncurses::constants::{KEY_UP, KEY_DOWN, KEY_RIGHT, KEY_LEFT, KEY_ENTER};
-
-
+enum constants {
+    KEY_UP = 115,
+    KEY_DOWN = 100,
+    KEY_LEFT = 97,
+    KEY_RIGHT = 102,
+    KEY_ESC = 27,
+}
 
 #[derive(PartialEq, Debug)]
 enum Direction {
@@ -19,129 +27,84 @@ enum Direction {
     Down,
 }
 
-
 fn main() {
-    
-
-    let mut log = File::create("log.txt").unwrap();
-    log.write_all(b"started\n");
-
+    let mut rng = rand::thread_rng();
 
     let sc = initscr();
     let (mut height, mut width) = (100, 80);
-    
+
     getmaxyx(sc, &mut height, &mut width);
     let win = newwin(height, width, 0, 0);
 
-    keypad(win, false);
+    keypad(win, true);
     curs_set(CURSOR_VISIBILITY::CURSOR_INVISIBLE);
 
     raw();
     noecho();
     cbreak();
 
-
-
     let mut snake_position: Vec<(i32, i32)> = Vec::new();
-    
-    snake_position.push((width/4, height/2));
-    snake_position.push((width/4-1, height/2));
-    snake_position.push((width/4-2, height/2));
-    snake_position.push((width/4-3, height/2));
-    snake_position.push((width/4-4, height/2));
-    snake_position.push((width/4-5, height/2));
-    snake_position.push((width/4-6, height/2));
-    snake_position.push((width/4-7, height/2));
-    snake_position.push((width/4-8, height/2));
-    snake_position.push((width/4-9, height/2));
 
+    snake_position.push((width / 4, height / 2));
+    snake_position.push((width / 4 - 1, height / 2));
+    snake_position.push((width / 4 - 2, height / 2));
+    snake_position.push((width / 4 - 3, height / 2));
+    snake_position.push((width / 4 - 4, height / 2));
+    snake_position.push((width / 4 - 5, height / 2));
+    snake_position.push((width / 4 - 6, height / 2));
+    snake_position.push((width / 4 - 7, height / 2));
+    snake_position.push((width / 4 - 8, height / 2));
+    snake_position.push((width / 4 - 9, height / 2));
 
-    let mut direction = Direction::Right; 
+    let mut direction = Direction::Right;
+    let (mut food_x, mut food_y) = (width / 2, height / 2);
 
-    loop { 
-        timeout(500);
+    loop {
+        timeout(100);
 
+        direction = match getch() {
+            s if (KEY_UP as i32) == s && direction != Direction::Down => Direction::Up,
+            d if (KEY_DOWN as i32) == d && direction != Direction::Up => Direction::Down,
+            f if (KEY_RIGHT as i32) == f && direction != Direction::Left => Direction::Right,
+            a if (KEY_LEFT as i32) == a && direction != Direction::Right => Direction::Left,
+            esc if (KEY_ESC as i32) == esc => break,
+            _ => direction,
+        };
 
         let (head_x, head_y) = snake_position[0];
-    
-        log.write_all(format!("{:?}\n",direction).as_bytes());
-        let key_press = getch();
-        if key_press == KEY_UP {
-            direction = Direction::Up;
-        }
-        /*direction = match key_press { 
-            KEY_UP    if direction != Direction::Down  => Direction::Up, 
-            KEY_DOWN  if direction != Direction::Up    => Direction::Down, 
-            KEY_RIGHT if direction != Direction::Left  => Direction::Right, 
-            KEY_LEFT  if direction != Direction::Right => Direction::Left,
-            KEY_ENTER                                  => break,
-            _                                          => direction,
-        };*/
-        log.write_all(format!("{:?}  {:?} ==  {:?} \n",direction, key_press, KEY_UP).as_bytes());
-        log.write_all(b"\n\n");
-
-        /*
-
-        direction = match getch(){
-            KEY_UP    => Direction::Up, 
-            KEY_DOWN  => Direction::Down, 
-            KEY_RIGHT => Direction::Right, 
-            KEY_LEFT  => Direction::Left,
-            KEY_ENTER => break,
-            _         => direction,
-        };
-        */
-
 
         let new_head = match direction {
-            Direction::Up    => (head_x, head_y - 1),
-            Direction::Down  => (head_x, head_y + 1),
-            Direction::Left  => (head_x - 1, head_y),
+            Direction::Up => (head_x, head_y - 1),
+            Direction::Down => (head_x, head_y + 1),
+            Direction::Left => (head_x - 1, head_y),
             Direction::Right => (head_x + 1, head_y),
         };
 
-        
+        if new_head.0 < 0 || new_head.0 > width {
+            return;
+        }
+        if new_head.1 < 0 || new_head.1 > height {
+            return;
+        }
+        mv(food_y, food_x);
+        addch('*' as chtype);
 
-       let food = false;
-       if food {
-       }else{
-           snake_position.insert(0, new_head);
-           let (tail_x, tail_y) = snake_position.pop().unwrap();
-           mv(tail_y, tail_x);
-           addch(' ' as chtype);
-       }
-       for (x, y) in snake_position.iter() {
-          mv(*y, *x);
-          addch('#' as chtype);
-       }
+        if new_head == (food_x, food_y) {
+            let (food_x, food_y) = (rng.gen_range(1, width - 1), rng.gen_range(1, height - 1));
+        } else {
+            let (tail_x, tail_y) = snake_position.pop().unwrap();
+            mv(tail_y, tail_x);
+            addch(' ' as chtype);
+        }
+        snake_position.insert(0, new_head);
+
+        for (x, y) in snake_position.iter() {
+            mv(*y, *x);
+            addch('#' as chtype);
+        }
+        doupdate();
     }
 
-    endwin();
-    
-}
-
-fn demo() {
-    initscr();
-
-    addstr("Hello world !");
-
     refresh();
-    getch();
     endwin();
-}
-
-fn auto_update(){
-    let mut inc = 0;
-    let mut direction = Direction :: Up;
-    match inc {
-           _ if inc%13==0 => {direction = Direction::Up;},
-           _ if inc%17==0 => {direction = Direction::Left},
-           
-           _ if inc%7==0 => {direction = Direction::Down},
-           _ if inc%11==0 => {direction = Direction::Right},
-           _ => {},
-       };
-
-      inc += 1;
-
 }
