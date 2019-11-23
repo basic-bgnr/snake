@@ -57,6 +57,7 @@ fn main() {
 
     loop {
         timeout(100);
+        border('|' as chtype, '|' as chtype, '-' as chtype, '-' as chtype, '+' as chtype, '+' as chtype, '+' as chtype, '+' as chtype);
 
         direction = match getch() {
             s if (KeyUp as i32) == s && direction != Direction::Down => Direction::Up,
