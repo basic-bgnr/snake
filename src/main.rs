@@ -4,9 +4,6 @@ extern crate rand;
 
 use ncurses::*;
 
-use std::fs::File;
-use std::io::Write;
-
 use rand::Rng;
 
 use constants::{KEY_DOWN, KEY_ESC, KEY_LEFT, KEY_RIGHT, KEY_UP};
@@ -87,10 +84,11 @@ fn main() {
             return;
         }
         mv(food_y, food_x);
-        addch('*' as chtype);
+        addch('#' as chtype);
 
         if new_head == (food_x, food_y) {
-            let (food_x, food_y) = (rng.gen_range(1, width - 1), rng.gen_range(1, height - 1));
+            food_x = rng.gen_range(1, width - 1);
+            food_y = rng.gen_range(1, height - 1);
         } else {
             let (tail_x, tail_y) = snake_position.pop().unwrap();
             mv(tail_y, tail_x);
@@ -100,7 +98,7 @@ fn main() {
 
         for (x, y) in snake_position.iter() {
             mv(*y, *x);
-            addch('#' as chtype);
+            addch('*' as chtype);
         }
         doupdate();
     }
